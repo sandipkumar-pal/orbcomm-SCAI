@@ -43,19 +43,6 @@ docker compose up --build
 
 The application will be served through the Nginx reverse proxy at [http://localhost:8080](http://localhost:8080).
 
-### Offline UI preview
-
-In sandboxed environments where npm registry access is blocked, open the static mock at `docs/mock-dashboard.html` to review the
-final dashboard layout and styling. For example:
-
-```bash
-python -m http.server 8000
-# then visit http://localhost:8000/docs/mock-dashboard.html
-```
-
-The mock reproduces the KPI cards, telemetry map styling, and trend visualization showcased in the production React frontend using
-sample data.
-
 ## KPI Formulas
 
 The backend exposes calculated KPIs via `/api/kpi/:routeCode/:week` using the following definitions:
