@@ -3,7 +3,8 @@ import { authenticate, authorize } from '../middleware/auth.js';
 import {
   loadCountyPairMoveData,
   loadTransearchSampleData,
-  summarizeDataset
+  summarizeDataset,
+  ingestAllDatasets
 } from '../services/dataIngestionService.js';
 
 const router = express.Router();
@@ -46,6 +47,20 @@ router.get('/metadata', authenticate, authorize(['admin', 'analyst']), async (re
     return res.json({
       countyPairMoves: countyMeta,
       transearch: transearchMeta
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+});
+
+router.post('/load', authenticate, authorize(['admin']), async (req, res) => {
+  try {
+    const { truncate = false, files = {} } = req.body || {};
+    const results = await ingestAllDatasets({ truncate: Boolean(truncate), files });
+    return res.status(201).json({
+      message: 'Datasets ingested successfully',
+      truncate: Boolean(truncate),
+      results
     });
   } catch (error) {
     return res.status(500).json({ message: error.message });

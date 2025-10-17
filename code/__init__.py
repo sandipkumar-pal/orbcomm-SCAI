@@ -12,6 +12,17 @@ from .kpi_utils import (
     calculate_rpi,
     summarize_kpis,
 )
+from .ingestion_utils import (
+    DatasetPaths,
+    ResolvedDatasetPaths,
+    DEFAULT_DATA_DIR,
+    load_parquet,
+    iter_dict_rows,
+    load_county_pair_moves,
+    load_transearch_sample,
+    prepare_orbcomm_payload,
+    prepare_transearch_payload,
+)
 
 __all__ = [
     "calculate_sdei",
@@ -19,4 +30,13 @@ __all__ = [
     "calculate_sii",
     "calculate_rpi",
     "summarize_kpis",
+    "DatasetPaths",
+    "ResolvedDatasetPaths",
+    "DEFAULT_DATA_DIR",
+    "load_parquet",
+    "iter_dict_rows",
+    "load_county_pair_moves",
+    "load_transearch_sample",
+    "prepare_orbcomm_payload",
+    "prepare_transearch_payload",
 ]

@@ -1,8 +1,17 @@
 import { Router } from 'express';
 import { authenticate, authorize } from '../middleware/auth.js';
-import { calculateKPIs, fetchKpiTrend } from '../services/kpiService.js';
+import { calculateKPIs, fetchKpiTrend, listAvailableRoutes } from '../services/kpiService.js';
 
 const router = Router();
+
+router.get('/', authenticate, authorize(['admin', 'analyst', 'business']), async (req, res) => {
+  try {
+    const routes = await listAvailableRoutes();
+    res.json(routes);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
 router.get('/:routeCode/:week', authenticate, authorize(['admin', 'analyst', 'business']), async (req, res) => {
   try {

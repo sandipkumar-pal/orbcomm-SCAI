@@ -23,14 +23,32 @@ export const OrbcommData = sequelize.define('OrbcommData', {
   latitude: DataTypes.FLOAT,
   longitude: DataTypes.FLOAT,
   event_timestamp: DataTypes.DATE
-}, { tableName: 'orbcomm_data', underscored: true });
+}, {
+  tableName: 'orbcomm_data',
+  underscored: true,
+  indexes: [
+    {
+      unique: true,
+      fields: ['route_code', 'week']
+    }
+  ]
+});
 
 export const TransearchData = sequelize.define('TransearchData', {
   id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
   route_code: { type: DataTypes.STRING },
   week: DataTypes.STRING,
   performance_variation: DataTypes.FLOAT
-}, { tableName: 'transearch_data', underscored: true });
+}, {
+  tableName: 'transearch_data',
+  underscored: true,
+  indexes: [
+    {
+      unique: true,
+      fields: ['route_code', 'week']
+    }
+  ]
+});
 
 export const User = sequelize.define('User', {
   id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
