@@ -68,3 +68,28 @@ Use `Ctrl + C` to stop the stack. To remove containers and networks, run `docker
 3. Explore filters, KPI widgets, trend charts, and the Leaflet map.
 
 With these steps completed, you should see the full Supply Chain Capacity Index dashboard running locally.
+
+## 7. Python KPI Utilities
+
+For offline experimentation or rapid iteration on new metrics, reusable Python helpers live in
+`code/kpi_utils.py`. The module mirrors the production KPI formulas and can be imported into
+notebooks or data science scripts as follows:
+
+```python
+from code.kpi_utils import summarize_kpis, KpiInput
+
+inputs = KpiInput(
+    available=120,
+    loaded=100,
+    used=80,
+    total=150,
+    avg_stop_duration=12.5,
+    trips_over_five=40,
+    total_trips=90,
+    performance_variation=0.87,
+)
+
+print(summarize_kpis(inputs))
+```
+
+This makes it simple to validate calculations or design additional KPIs before porting changes to the Node.js services.

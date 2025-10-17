@@ -7,6 +7,7 @@ This repository contains a full-stack implementation of the Supply Chain Capacit
 ```
 backend/   # Node.js API service (Express, Sequelize)
 frontend/  # React dashboard (Vite, Tailwind, Leaflet, Recharts)
+code/      # Python utilities for KPI experimentation and data science workflows
 docker/    # Container orchestration and reverse proxy assets
 ```
 
@@ -53,6 +54,11 @@ The backend exposes calculated KPIs via `/api/kpi/:routeCode/:week` using the fo
 - **RPI** = Route-level performance variation (from Transearch data)
 
 Trend endpoints return KPI time series to power frontend visualizations.
+
+For data science workflows or rapid prototyping, equivalent Python helpers are available in
+`code/kpi_utils.py`. These utilities expose the same calculations used by the production
+backend, making it easier to validate new KPI ideas before porting them to the service
+layer.
 
 ## Authentication
 
