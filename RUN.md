@@ -93,3 +93,24 @@ print(summarize_kpis(inputs))
 ```
 
 This makes it simple to validate calculations or design additional KPIs before porting changes to the Node.js services.
+
+## 8. Loading Local Parquet Data
+
+Place the following datasets in the repository-level `data/` directory (create it if it does not yet exist):
+
+- `county_pair_move_data_06037-04019.parquet`
+- `transearch_data_sample.parquet`
+
+Alternatively, set the `DATA_DIR` environment variable (for example in `.env`) to point at another directory containing the files.
+
+Once the backend is running, you can confirm the ingestion pipeline with authenticated requests:
+
+```bash
+curl -H "Authorization: Bearer <token>" \
+  "http://localhost:5000/api/ingestion/metadata"
+
+curl -H "Authorization: Bearer <token>" \
+  "http://localhost:5000/api/ingestion/preview?limit=20"
+```
+
+These routes read from the Parquet files on disk, emit schema information, and return sample rows so that analysts can validate the payload before seeding the database.

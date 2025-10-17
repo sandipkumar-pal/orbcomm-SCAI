@@ -11,3 +11,4 @@ frontend/dist
 dist
 .DS_Store
 coverage
+data/*.parquet

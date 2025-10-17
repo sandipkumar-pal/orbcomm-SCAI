@@ -6,6 +6,7 @@ import { sequelize } from './models/index.js';
 import authRoutes from './routes/authRoutes.js';
 import kpiRoutes from './routes/kpiRoutes.js';
 import mapRoutes from './routes/mapRoutes.js';
+import ingestionRoutes from './routes/ingestionRoutes.js';
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ app.get('/health', (req, res) => {
 app.use('/auth', authRoutes);
 app.use('/api/kpi', kpiRoutes);
 app.use('/api/map', mapRoutes);
+app.use('/api/ingestion', ingestionRoutes);
 
 const PORT = process.env.PORT || 4000;
 

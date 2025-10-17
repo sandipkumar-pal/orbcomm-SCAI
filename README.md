@@ -8,6 +8,7 @@ This repository contains a full-stack implementation of the Supply Chain Capacit
 backend/   # Node.js API service (Express, Sequelize)
 frontend/  # React dashboard (Vite, Tailwind, Leaflet, Recharts)
 code/      # Python utilities for KPI experimentation and data science workflows
+data/      # Local Parquet inputs consumed by the ingestion service (not committed)
 docker/    # Container orchestration and reverse proxy assets
 ```
 
@@ -63,6 +64,15 @@ layer.
 ## Authentication
 
 JWT-based authentication protects all API routes. Admin users can provision new accounts via `/auth/register`, while all users authenticate via `/auth/login`.
+
+## Local Data Ingestion
+
+Operational data can be read directly from Parquet files located in the repository-level `data/` directory (or another folder specified through the `DATA_DIR` environment variable). The backend exposes helper endpoints for analysts to validate imports without touching the database:
+
+- `GET /api/ingestion/metadata` – returns schema metadata and a small sample from both required Parquet files.
+- `GET /api/ingestion/preview?limit=25` – streams up to `limit` rows from each dataset to quickly inspect the payload.
+
+Both routes require an authenticated JWT with the `admin` or `analyst` role.
 
 ## Deployment
 
