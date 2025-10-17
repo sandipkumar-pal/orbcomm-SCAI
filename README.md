@@ -32,10 +32,33 @@ npm run dev
 
 # Streamlit dashboard
 cd ../streamlit_app
-python -m venv .venv
-source .venv/bin/activate  # PowerShell: .venv\\Scripts\\Activate.ps1
+python3 -m venv .venv
+source .venv/bin/activate  # macOS/Linux
+# PowerShell: .venv\\Scripts\\Activate.ps1
 pip install -r requirements.txt
 streamlit run app.py
+```
+
+If you prefer to reuse the system Python on macOS, install dependencies with `pip3` instead of creating a virtual environment:
+
+```zsh
+cd streamlit_app
+pip3 install -r requirements.txt
+streamlit run app.py
+```
+
+On macOS, install prerequisites with Homebrew and ensure PostgreSQL is running before starting the backend:
+
+```bash
+brew install node@20 postgresql@14 python@3.11
+brew link --overwrite node@20
+brew services start postgresql@14
+```
+
+If you use a custom database user or port, export `DATABASE_URL` before launching the API:
+
+```zsh
+export DATABASE_URL="postgres://$(whoami)@localhost:5432/scci"
 ```
 
 On Windows, run the above commands from **PowerShell** or **Git Bash**. If your project path contains spaces (for example when the

@@ -14,6 +14,14 @@ This document explains how to start the backend API, launch the Streamlit dashbo
 > **Windows tip:** Install the latest **Node.js 20 LTS** build and run commands from **PowerShell** or **Git Bash**. When npm prompt
 s to install additional tools, allow it so native build tools are configured automatically.
 
+> **macOS tip:** Use **Homebrew** to install prerequisites quickly:
+> ```bash
+> brew install node@20 postgresql@14 python@3.11
+> brew link --overwrite node@20
+> brew services start postgresql@14  # optional: run PostgreSQL as a service
+> ```
+> The default macOS shell is **zsh**. All Bash commands below run unmodified in zsh.
+
 ## 2. Environment Configuration
 
 1. Duplicate `.env.example` into `.env` at the repository root and supply the required values:
@@ -40,6 +48,12 @@ npm install
 npm run dev
 ```
 
+On macOS, ensure your PostgreSQL server is running (`brew services start postgresql@14`) and export `DATABASE_URL` if you use a custom port or role:
+
+```zsh
+export DATABASE_URL="postgres://$(whoami)@localhost:5432/scci"
+```
+
 On Windows, quote directories that contain spaces and set npm to use PowerShell (run once):
 
 ```powershell
@@ -57,9 +71,17 @@ Open a new terminal session (or activate a virtual environment) and install depe
 
 ```bash
 cd streamlit_app
-python -m venv .venv
-source .venv/bin/activate  # PowerShell: .venv\\Scripts\\Activate.ps1
+python3 -m venv .venv
+source .venv/bin/activate  # macOS/Linux
 pip install -r requirements.txt
+streamlit run app.py
+```
+
+If you prefer to reuse the system Python on macOS, call `pip3` directly:
+
+```zsh
+cd streamlit_app
+pip3 install -r requirements.txt
 streamlit run app.py
 ```
 
@@ -138,11 +160,11 @@ curl -H "Authorization: Bearer <token>" \
   "http://localhost:4000/api/ingestion/metadata"
 
 curl -H "Authorization: Bearer <token>" \
-  "http://localhost:5000/api/ingestion/preview?limit=20"
+  "http://localhost:4000/api/ingestion/preview?limit=20"
 
 curl -X POST -H "Authorization: Bearer <token>" -H "Content-Type: application/json" \
   -d '{"truncate": true}' \
-  "http://localhost:5000/api/ingestion/load"
+  "http://localhost:4000/api/ingestion/load"
 ```
 
 These routes read from the Parquet files on disk, emit schema information, and return sample rows so that analysts can validate the payload before seeding the database. The `load` endpoint persists both Parquet files into PostgreSQL and is restricted to accounts with the `admin` role. Omit the body for an append-only load or supply `{ "files": { "countyPairMoves": "/custom/path" } }` to override the default filenames on disk.
