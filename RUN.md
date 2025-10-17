@@ -1,14 +1,18 @@
 # Running the Supply Chain Capacity Index Platform
 
-This document explains how to start the backend API, launch the React dashboard, and preview the full experience through Docker. Follow the path that best matches your environment.
+This document explains how to start the backend API, launch the Streamlit dashboard, and preview the full experience through Docker. Follow the path that best matches your environment.
 
 ## 1. Prerequisites
 
 - Node.js 18+
 - npm 9+
+- Python 3.10+ (for the local Streamlit dashboard)
 - Docker Desktop 4.x (for the Docker-based option)
-- Mapbox access token (required for the Leaflet/Mapbox map)
+- Mapbox access token (optional for Mapbox basemaps in the telemetry view)
 - PostgreSQL 13+ (for running the backend without Docker)
+
+> **Windows tip:** Install the latest **Node.js 20 LTS** build and run commands from **PowerShell** or **Git Bash**. When npm prompt
+s to install additional tools, allow it so native build tools are configured automatically.
 
 ## 2. Environment Configuration
 
@@ -16,15 +20,17 @@ This document explains how to start the backend API, launch the React dashboard,
    ```bash
    cp .env.example .env
    ```
-   - `PORT` – backend port (defaults to `5000`)
+
+   **Windows alternative:**
+   ```powershell
+   Copy-Item .env.example .env
+   ```
+   - `PORT` – backend port (defaults to `4000`)
    - `DATABASE_URL` – PostgreSQL connection string (e.g. `postgres://user:password@localhost:5432/scci`)
    - `JWT_SECRET` – random string used to sign JWTs
-   - `MAPBOX_TOKEN` – Mapbox access token
-
-2. For the frontend, expose the token as `VITE_MAPBOX_TOKEN` by creating `frontend/.env`:
-   ```bash
-   echo "VITE_MAPBOX_TOKEN=YOUR_MAPBOX_TOKEN" > frontend/.env
-   ```
+   - `MAPBOX_TOKEN` – Mapbox access token (optional; enables Mapbox styles in the telemetry map)
+   - `DATA_DIR` – optional absolute path to Parquet inputs (leave blank to use the `data/` folder)
+   - `BACKEND_URL` – optional override for the Streamlit app when running outside Docker (defaults to `http://localhost:4000`)
 
 ## 3. Running the Backend Locally
 
@@ -34,36 +40,57 @@ npm install
 npm run dev
 ```
 
-The backend will run on `http://localhost:5000` (or the value of `PORT`). Ensure your PostgreSQL instance is reachable with the configured credentials. Sequelize migrations/seeders can be added later via the `backend/models` folder.
+On Windows, quote directories that contain spaces and set npm to use PowerShell (run once):
 
-## 4. Running the Frontend Locally
-
-Open a new terminal session:
-
-```bash
-cd frontend
+```powershell
+npm config set script-shell "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+Set-Location "C:\Users\you\OneDrive - Company\Orbcomm\backend"
 npm install
 npm run dev
 ```
 
-Vite prints a local URL (typically `http://localhost:5173`). Open it in the browser, log in, and the dashboard UI will render using live API data from the backend.
+The backend will run on `http://localhost:4000` (or the value of `PORT`). Ensure your PostgreSQL instance is reachable with the configured credentials. Sequelize migrations/seeders can be added later via the `backend/models` folder.
+
+## 4. Running the Streamlit Dashboard Locally
+
+Open a new terminal session (or activate a virtual environment) and install dependencies:
+
+```bash
+cd streamlit_app
+python -m venv .venv
+source .venv/bin/activate  # PowerShell: .venv\\Scripts\\Activate.ps1
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+When working from PowerShell, remember to activate the virtual environment before running Streamlit:
+
+```powershell
+Set-Location "C:\Users\you\OneDrive - Company\Orbcomm\streamlit_app"
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+Streamlit will print a local URL (typically `http://localhost:8501`). Open it in the browser, authenticate with the backend, and the dashboard UI will render using live API data. Set the `BACKEND_URL` environment variable if the backend runs on a non-default host or port.
 
 ## 5. Full Stack via Docker Compose
 
-To start all services (PostgreSQL, backend, frontend, Nginx proxy) with one command:
+To start all services (PostgreSQL, backend, Streamlit, Nginx proxy) with one command:
 
 ```bash
 cd docker
 docker compose up --build
 ```
 
-After the stack finishes building, navigate to [http://localhost:8080](http://localhost:8080) for the proxied UI. Backend APIs are exposed internally at `http://backend:5000` and externally at `http://localhost:5000`.
+After the stack finishes building, navigate to [http://localhost:8080](http://localhost:8080) for the proxied UI. Backend APIs are exposed internally at `http://backend:4000` and externally at `http://localhost:4000`.
 
 Use `Ctrl + C` to stop the stack. To remove containers and networks, run `docker compose down` from the same directory.
 
 ## 6. First-Time Account Setup
 
-1. POST to `http://localhost:5000/auth/register` with admin credentials (or seed a user directly in the database).
+1. POST to `http://localhost:4000/auth/register` with admin credentials (or seed a user directly in the database).
 2. Log in through the dashboard UI using the created account.
 3. Explore filters, KPI widgets, trend charts, and the Leaflet map.
 
@@ -102,12 +129,13 @@ Place the following datasets in the repository-level `data/` directory (create i
 - `transearch_data_sample.parquet`
 
 Alternatively, set the `DATA_DIR` environment variable (for example in `.env`) to point at another directory containing the files.
+On Windows, prefer absolute paths wrapped in quotes, such as `DATA_DIR="C:\\Users\\you\\Documents\\SCCIData"`.
 
 Once the backend is running, you can confirm the ingestion pipeline with authenticated requests:
 
 ```bash
 curl -H "Authorization: Bearer <token>" \
-  "http://localhost:5000/api/ingestion/metadata"
+  "http://localhost:4000/api/ingestion/metadata"
 
 curl -H "Authorization: Bearer <token>" \
   "http://localhost:5000/api/ingestion/preview?limit=20"

@@ -1,13 +1,22 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { ParquetReader } from 'parquetjs-lite';
+import parquet from 'parquets';
+
+import { sequelize, Route, OrbcommData, TransearchData } from '../models/index.js';
 
 import { sequelize, Route, OrbcommData, TransearchData } from '../models/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DEFAULT_DATA_DIR = path.resolve(__dirname, '../../data');
+
+const parquetModule = parquet?.ParquetReader ? parquet : parquet?.default ?? parquet;
+const { ParquetReader } = parquetModule ?? {};
+
+if (!ParquetReader) {
+  throw new Error('Unable to initialize Parquet reader. Ensure the "parquets" package is installed.');
+}
 
 const resolveDataPath = (filePath) => {
   if (path.isAbsolute(filePath)) {

@@ -1,15 +1,15 @@
 # Supply Chain Capacity Index Platform
 
-This repository contains a full-stack implementation of the Supply Chain Capacity Index (SCCI) analytics platform. It includes a Node.js/Express backend for KPI computation and data APIs, a React + Tailwind frontend for visual analytics, and Docker-based deployment assets.
+This repository contains a full-stack implementation of the Supply Chain Capacity Index (SCCI) analytics platform. It includes a Node.js/Express backend for KPI computation and data APIs, a Streamlit frontend for visual analytics, and Docker-based deployment assets.
 
 ## Project Structure
 
 ```
-backend/   # Node.js API service (Express, Sequelize)
-frontend/  # React dashboard (Vite, Tailwind, Leaflet, Recharts)
-code/      # Python utilities for KPI experimentation and data science workflows
-data/      # Local Parquet inputs consumed by the ingestion service (not committed)
-docker/    # Container orchestration and reverse proxy assets
+backend/        # Node.js API service (Express, Sequelize)
+streamlit_app/  # Streamlit dashboard that consumes the backend APIs
+code/           # Python utilities for KPI experimentation and data science workflows
+data/           # Local Parquet inputs consumed by the ingestion service (not committed)
+docker/         # Container orchestration and reverse proxy assets
 ```
 
 ## Getting Started
@@ -18,9 +18,9 @@ docker/    # Container orchestration and reverse proxy assets
    - `PORT`
    - `DATABASE_URL`
    - `JWT_SECRET`
-   - `MAPBOX_TOKEN`
-
-   For local development with the React app, expose the token as `VITE_MAPBOX_TOKEN` (e.g. by creating `frontend/.env` with `VITE_MAPBOX_TOKEN=$MAPBOX_TOKEN`).
+   - `MAPBOX_TOKEN` (optional; enables Mapbox basemaps in the Streamlit map)
+   - `DATA_DIR` (optional local path override for Parquet files)
+   - `BACKEND_URL` (optional override for Streamlit when running outside Docker)
 
 2. Install dependencies and start services locally:
 
@@ -30,11 +30,29 @@ cd backend
 npm install
 npm run dev
 
-# Frontend
-cd ../frontend
-npm install
-npm run dev
+# Streamlit dashboard
+cd ../streamlit_app
+python -m venv .venv
+source .venv/bin/activate  # PowerShell: .venv\\Scripts\\Activate.ps1
+pip install -r requirements.txt
+streamlit run app.py
 ```
+
+On Windows, run the above commands from **PowerShell** or **Git Bash**. If your project path contains spaces (for example when the
+repository is under OneDrive), quote the path when changing directories:
+
+```powershell
+Set-Location "C:\Users\you\OneDrive - Company\Orbcomm\backend"
+npm install
+```
+
+If PowerShell is your default shell for npm, ensure scripts use it by running once:
+
+```powershell
+npm config set script-shell "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+```
+
+The backend uses the pure JavaScript `parquets` reader so no native compilation is required on Windows. Streamlit runs on the system Python interpreter; install dependencies with `pip install -r streamlit_app/requirements.txt` if you prefer to reuse an existing environment.
 
 3. Launch the Dockerized stack:
 
@@ -54,7 +72,7 @@ The backend exposes calculated KPIs via `/api/kpi/:routeCode/:week` using the fo
 - **SII** = Average Stop Duration × (Trips over 5 minutes ÷ Total Trips)
 - **RPI** = Route-level performance variation (from Transearch data)
 
-Trend endpoints return KPI time series to power frontend visualizations.
+Trend endpoints return KPI time series to power frontend visualizations. Use `GET /api/kpi` to retrieve the list of available routes and their active weeks, and `POST /api/kpi/:routeCode/trend` for multi-week trend data.
 
 For data science workflows or rapid prototyping, equivalent Python helpers are available in
 `code/kpi_utils.py`. These utilities expose the same calculations used by the production
@@ -96,6 +114,6 @@ first_payload = prepare_orbcomm_payload(next(iter_dict_rows(orbcomm_frame)))
 
 ## Deployment
 
-The Docker composition includes services for PostgreSQL, backend, frontend, and an Nginx reverse proxy. Update environment variables and secrets before deploying to production.
+The Docker composition includes services for PostgreSQL, backend, Streamlit, and an Nginx reverse proxy. Update environment variables and secrets before deploying to production.
 
 A GitHub Actions workflow (`.github/workflows/ci.yml`) is provided as a placeholder for future CI/CD automation.
