@@ -1,0 +1,14 @@
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.env
+backend/node_modules
+streamlit_app/__pycache__/
+streamlit_app/.streamlit/
+streamlit_app/.venv/
+dist
+.DS_Store
+coverage
+data/*.parquet
