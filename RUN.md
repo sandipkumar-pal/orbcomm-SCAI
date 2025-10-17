@@ -138,11 +138,11 @@ curl -H "Authorization: Bearer <token>" \
   "http://localhost:4000/api/ingestion/metadata"
 
 curl -H "Authorization: Bearer <token>" \
-  "http://localhost:4000/api/ingestion/preview?limit=20"
+  "http://localhost:5000/api/ingestion/preview?limit=20"
 
 curl -X POST -H "Authorization: Bearer <token>" -H "Content-Type: application/json" \
   -d '{"truncate": true}' \
-  "http://localhost:4000/api/ingestion/load"
+  "http://localhost:5000/api/ingestion/load"
 ```
 
 These routes read from the Parquet files on disk, emit schema information, and return sample rows so that analysts can validate the payload before seeding the database. The `load` endpoint persists both Parquet files into PostgreSQL and is restricted to accounts with the `admin` role. Omit the body for an append-only load or supply `{ "files": { "countyPairMoves": "/custom/path" } }` to override the default filenames on disk.
